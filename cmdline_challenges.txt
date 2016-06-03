@@ -1,0 +1,20 @@
+#The following are possible answers to the challenges found at https://github.com/dssg/hitchhikers-guide/tree/master/tech-tutorials/commandlinetools
+
+#1.   
+cat 2016.csv | grep USW00094846 | grep PRCP | sed s/PRCP/RAIN/ > 2016_ohare_rain.csv
+
+
+#2. 
+cat 2016.csv | grep USW00094846 | csvgrep -c 4 -r "[7-9][0-9]|[0-9]{3}" > 2016_above70.csv
+
+
+#3.
+curl -O https://data.cityofchicago.org/resource/6zsd-86xi.json    								# get data
+jq . 6zsd-86xi.json | head -n50         				   							# inspect a little bit of json file to get an idea of structure
+jq -r '. | map([.date, .latitude, .longitude, .primary_type] | join(", ")) | join("\n")' 6zsd-86xi.json > init_output.csv       # convert json to csv, and include just day, location, and crime type
+cat init_output.csv | csvgrep -c 4 -m HOMICIDE > homicides.csv									# filter to only include HOMICIDEs
+
+						   
+#4.
+#FIND DSSG coordinates via googlemaps.    41.8784754,-87.6292726
+awk 'match($0," 41.87")==13 {print}' ghcnd-stations.txt | awk 'match($0,"-87.6")==23 {print}' > closest-station.txt
